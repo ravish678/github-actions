@@ -35,7 +35,19 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
+            # 1. Navigate to your app directory
             cd /home/my-app/github-actions
+            
+            # 2. Update code and install only production dependencies
             git pull origin main
-            npm install
-            npm start
+            npm install --production
+            
+            # 3. Stop the existing process to avoid "Port in use" errors
+            sudo pm2 delete my-api || true
+            
+            # 4. Start the app on Port 80 using sudo
+            # We use 'sudo' because ports below 1024 are restricted in Linux
+            sudo PORT=80 pm2 start app.js --name my-api --update-env
+            
+            # 5. Save the PM2 list so it restarts if the EC2 reboots
+            sudo pm2 save
