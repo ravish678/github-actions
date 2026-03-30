@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-
 // Use the PORT environment variable if available, otherwise default to 3000
 const PORT = process.env.PORT || 3000;
 
