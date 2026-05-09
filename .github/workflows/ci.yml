@@ -1,17 +1,41 @@
 # This is a basic workflow to get started with GitHub Actions.
+
+# Name of the workflow - displays in GitHub UI
 name: CI POC
 
+# Define when this workflow should trigger
 on:
   push:
+    # Trigger on code push to main branch
     branches: [ main ]
   pull_request:
+    # Trigger when pull request is created/updated targeting main branch
     branches: [ main ]
 
+# Define jobs to run
 jobs:
   build:
+    # Specify the OS environment for runner - ubuntu-latest provides a fresh Ubuntu machine
+    # runs-on: ubuntu-latest
+    #     ↓
+    #     Ubuntu Linux OS (Fresh Virtual Machine)
+    #     ├── Bash Shell
+    #     ├── Node.js (multiple versions)
+    #     ├── Python
+    #     ├── Java
+    #     ├── Git
+    #     └── Other tools...
     runs-on: ubuntu-latest
+    
+    # List all steps to execute in order
     steps:
+      # Step 1: Download repository code into the runner
       - name: Checkout code
+        # uses: — run a ready-made GitHub Action step
+        # actions/checkout — the action that copies your repository code into the workflow runner
+        # @v4 — use version 4 of that action
         uses: actions/checkout@v4
+      
+      # Step 2: Execute a simple command
       - name: Run a one-line script
-        run: echo "Hello from GitHub Actions POC!"
+        run: echo "Hello from GitHub Actions POC!"  # This prints a message to the workflow log
