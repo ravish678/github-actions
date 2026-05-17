@@ -46,9 +46,10 @@ jobs:
             #    This is safer than deleting first, because the old process can remain until
             #    the restart is attempted.
             #    '--update-env' tells PM2 to update the process environment variables
-            #    from the current command, including PORT=80.
+            #    from the current command. Since app.js uses `process.env.PORT || 3000`,
+            #    the app will use the default port configured in the code if no PORT is set.
             
-            sudo PORT=80 pm2 restart my-api --update-env || sudo PORT=80 pm2 start app.js --name my-api --update-env
+            pm2 restart my-api --update-env || pm2 start app.js --name my-api --update-env
             
             # 4. Save the PM2 list so it restarts if the EC2 reboots
             sudo pm2 save
