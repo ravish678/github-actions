@@ -28,8 +28,11 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
+          # EC2 hostname or public IP address stored securely as a GitHub secret
           host: ${{ secrets.AWS_EC2_HOST }}
+          # SSH user for connecting to the EC2 instance
           username: ${{ secrets.AWS_EC2_USER }}
+          # SSH private key stored as a GitHub secret for secure authentication
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             # 1. Navigate to your app directory
@@ -39,12 +42,13 @@ jobs:
             git pull origin main
             npm install --production
             
-            # 3. Stop the existing process to avoid "Port in use" errors
-            sudo pm2 delete my-api || true
+            # 3. Restart the existing process if it exists, or start a new one if it does not.
+            #    This is safer than deleting first, because the old process can remain until
+            #    the restart is attempted.
+            #    '--update-env' tells PM2 to update the process environment variables
+            #    from the current command, including PORT=80.
             
-            # 4. Start the app on Port 80 using sudo
-            # We use 'sudo' because ports below 1024 are restricted in Linux
-            sudo PORT=80 pm2 start app.js --name my-api --update-env
+            sudo PORT=80 pm2 restart my-api --update-env || sudo PORT=80 pm2 start app.js --name my-api --update-env
             
-            # 5. Save the PM2 list so it restarts if the EC2 reboots
+            # 4. Save the PM2 list so it restarts if the EC2 reboots
             sudo pm2 save
